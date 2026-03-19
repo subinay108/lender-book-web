@@ -10,7 +10,7 @@ import { StatCard } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { BorrowerRow } from '@/components/borrowers/BorrowerCard';
 import { Spinner, EmptyState } from '@/components/ui';
-import { formatCurrency, isOverdue, isDueWithinDays } from '@/lib/utils/dates';
+import { formatCurrency, isDueWithinDays } from '@/lib/utils/dates';
 import { withAuth } from '@/lib/hooks/withAuth';
 
 function DashboardPage() {

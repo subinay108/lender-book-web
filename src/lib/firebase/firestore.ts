@@ -9,12 +9,13 @@ import {
   query,
   orderBy,
   serverTimestamp,
-  Timestamp,
+  // Timestamp,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from './config';
 import type { Borrower, BorrowerFormData, BorrowerWithStats, Payment, PaymentFormData } from '@/lib/types';
-import { isOverdue, isDueToday } from '@/lib/utils/dates';
+import { isOverdue } from '@/lib/utils/dates';
+// import { isOverdue, isDueToday } from '@/lib/utils/dates';
 
 // ─── Paths ────────────────────────────────────────────────────────────────────
 

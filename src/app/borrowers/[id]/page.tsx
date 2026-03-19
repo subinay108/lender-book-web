@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, Phone, MapPin, Edit3, Trash2, Plus,
-  TrendingUp, AlertCircle, CheckCircle, Calendar,
+  TrendingUp, CheckCircle, Calendar,
 } from 'lucide-react';
 import { useBorrower } from '@/lib/hooks/useBorrowers';
 import { usePayments } from '@/lib/hooks/usePayments';
@@ -14,7 +14,7 @@ import { deleteBorrower } from '@/lib/firebase/firestore';
 import { Sidebar, PageWrapper } from '@/components/layout/AppShell';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { StatusBadge, Avatar, Spinner, PageLoader } from '@/components/ui';
+import { StatusBadge, Avatar, PageLoader } from '@/components/ui';
 import { PaymentHistory } from '@/components/payments/PaymentHistory';
 import { PaymentForm } from '@/components/payments/PaymentForm';
 import { formatCurrency, formatDate, getDaysUntilDue } from '@/lib/utils/dates';

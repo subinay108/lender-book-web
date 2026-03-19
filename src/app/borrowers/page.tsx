@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Users } from 'lucide-react';
 import { useBorrowers } from '@/lib/hooks/useBorrowers';
@@ -12,7 +12,7 @@ import { Spinner, EmptyState, Alert } from '@/components/ui';
 import { withAuth } from '@/lib/hooks/withAuth';
 import { cn } from '@/lib/utils';
 import type { BorrowerFilter } from '@/lib/types';
-import { isDueToday, isOverdue } from '@/lib/utils/dates';
+import { isDueToday } from '@/lib/utils/dates';
 
 const filters: { key: BorrowerFilter; label: string }[] = [
   { key: 'all',       label: 'All' },
