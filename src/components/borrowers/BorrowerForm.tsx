@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 // import { Timestamp } from 'firebase/firestore';
 import { Input, Select, Textarea } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Alert } from '@/components/ui';
+import { notifySuccess, notifyError } from '@/lib/utils/notifications';
 import { useAuth } from '@/context/AuthContext';
 import { addBorrower, updateBorrower } from '@/lib/firebase/firestore';
 import { dateToTimestamp, timestampToInputDate } from '@/lib/utils/dates';
@@ -53,7 +53,6 @@ export function BorrowerForm({ borrower, onSuccess, onCancel }: BorrowerFormProp
 
   const [errors, setErrors]   = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -79,8 +78,7 @@ export function BorrowerForm({ borrower, onSuccess, onCancel }: BorrowerFormProp
     e.preventDefault();
     if (!user || !validate()) return;
     setLoading(true);
-    setApiError('');
-    try {
+      try {
       const data: BorrowerFormData = {
         name:               form.name.trim(),
         phone:              form.phone.trim(),
@@ -93,15 +91,25 @@ export function BorrowerForm({ borrower, onSuccess, onCancel }: BorrowerFormProp
         notes:              form.notes.trim() || undefined,
       };
 
-      if (isEdit && borrower) {
-        await updateBorrower(user.uid, borrower.id, data);
-        onSuccess(borrower.id);
-      } else {
-        const id = await addBorrower(user.uid, data);
-        onSuccess(id);
+      // Firestore does not accept `undefined` values — remove the field entirely when empty
+      const payload: Partial<BorrowerFormData> = { ...data };
+      if (payload.notes === undefined) {
+        delete (payload as any).notes;
       }
-    } catch {
-      setApiError('Something went wrong. Please try again.');
+
+      if (isEdit && borrower) {
+        await updateBorrower(user.uid, borrower.id, payload as BorrowerFormData);
+        onSuccess(borrower.id);
+        notifySuccess('Borrower updated');
+      } else {
+        const id = await addBorrower(user.uid, payload as BorrowerFormData);
+        onSuccess(id);
+        notifySuccess('Borrower added');
+      }
+    } catch (error) {
+      const msg = 'Something went wrong. Please try again.';
+      console.log(error);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -109,7 +117,6 @@ export function BorrowerForm({ borrower, onSuccess, onCancel }: BorrowerFormProp
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {apiError && <Alert type="error" message={apiError} />}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input

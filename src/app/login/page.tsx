@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { signInWithEmail, signInWithGoogle } from '@/lib/firebase/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Alert } from '@/components/ui';
+import { notifyError } from '@/lib/utils/notifications';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
@@ -18,7 +18,6 @@ export default function LoginPage() {
   const [showPw, setShowPw]     = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!loading && user) router.replace('/dashboard');
@@ -26,7 +25,7 @@ export default function LoginPage() {
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    
     setIsLoading(true);
     try {
       await signInWithEmail(email, password);
@@ -34,24 +33,24 @@ export default function LoginPage() {
     } catch (err: any) {
       const code = err?.code || '';
       if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential'))
-        setError('Invalid email or password.');
+        notifyError('Invalid email or password.');
       else if (code.includes('too-many-requests'))
-        setError('Too many attempts. Please try again later.');
+        notifyError('Too many attempts. Please try again later.');
       else
-        setError('Sign in failed. Please try again.');
+        notifyError('Sign in failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   }
 
   async function handleGoogle() {
-    setError('');
+    
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
       router.push('/dashboard');
     } catch {
-      setError('Google sign in failed.');
+      notifyError('Google sign in failed.');
     } finally {
       setGoogleLoading(false);
     }
@@ -70,7 +69,7 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 p-6">
-          {error && <Alert type="error" message={error} className="mb-4" />}
+        
 
           <form onSubmit={handleEmail} className="space-y-4">
             <Input

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Users } from 'lucide-react';
 import { useBorrowers } from '@/lib/hooks/useBorrowers';
@@ -8,7 +8,8 @@ import { Sidebar, PageWrapper } from '@/components/layout/AppShell';
 import { BorrowerCard } from '@/components/borrowers/BorrowerCard';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Spinner, EmptyState, Alert } from '@/components/ui';
+import { Spinner, EmptyState } from '@/components/ui';
+import { notifyError } from '@/lib/utils/notifications';
 import { withAuth } from '@/lib/hooks/withAuth';
 import { cn } from '@/lib/utils';
 import type { BorrowerFilter } from '@/lib/types';
@@ -55,6 +56,10 @@ function BorrowersPage() {
 
     return list;
   }, [borrowers, search, filter]);
+
+  useEffect(() => {
+    if (error) notifyError(error);
+  }, [error]);
 
   return (
     <>
@@ -104,7 +109,7 @@ function BorrowersPage() {
         </div>
 
         {/* Content */}
-        {error && <Alert type="error" message={error} className="mb-4" />}
+        {error && null}
 
         {loading ? (
           <div className="flex justify-center py-20"><Spinner className="w-8 h-8" /></div>

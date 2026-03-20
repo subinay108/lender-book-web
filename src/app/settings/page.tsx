@@ -8,7 +8,8 @@ import { logOut, resetPassword } from '@/lib/firebase/auth';
 import { Sidebar, PageWrapper } from '@/components/layout/AppShell';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Avatar, Alert } from '@/components/ui';
+import { Avatar } from '@/components/ui';
+import { notifySuccess, notifyError } from '@/lib/utils/notifications';
 import { withAuth } from '@/lib/hooks/withAuth';
 
 function SettingsPage() {
@@ -30,8 +31,10 @@ function SettingsPage() {
     try {
       await resetPassword(user.email);
       setResetSent(true);
-    } catch {
-      //
+      notifySuccess('Password reset email sent. Check your inbox.');
+    } catch (err) {
+      console.error(err);
+      notifyError('Failed to send reset email. Please try again.');
     } finally {
       setResetting(false);
     }
@@ -73,9 +76,7 @@ function SettingsPage() {
               <Shield size={16} className="text-gray-400" /> Security
             </h3>
 
-            {resetSent && (
-              <Alert type="success" message="Password reset email sent. Check your inbox." className="mb-3" />
-            )}
+            {resetSent && null}
 
             <button
               onClick={handleResetPassword}

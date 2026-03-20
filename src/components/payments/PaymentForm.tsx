@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 // import { Timestamp } from 'firebase/firestore';
 import { Input, Select, Textarea } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Alert } from '@/components/ui';
+import { notifySuccess, notifyError } from '@/lib/utils/notifications';
 import { useAuth } from '@/context/AuthContext';
 import { addPayment } from '@/lib/firebase/firestore';
 import { dateToTimestamp } from '@/lib/utils/dates';
@@ -36,7 +36,6 @@ export function PaymentForm({ borrowerId, borrowerName, remainingDue, onSuccess,
   });
   const [errors, setErrors]   = useState<{ amount?: string; date?: string }>({});
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -56,17 +55,21 @@ export function PaymentForm({ borrowerId, borrowerName, remainingDue, onSuccess,
     e.preventDefault();
     if (!user || !validate()) return;
     setLoading(true);
-    setApiError('');
     try {
-      await addPayment(user.uid, borrowerId, {
+      const payload = {
         amount: Number(form.amount),
         type:   form.type,
         date:   dateToTimestamp(form.date),
-        notes:  form.notes.trim() || undefined,
-      });
+      } as any;
+      const notes = form.notes.trim();
+      if (notes) payload.notes = notes;
+
+      await addPayment(user.uid, borrowerId, payload);
+      notifySuccess('Payment recorded');
       onSuccess();
-    } catch {
-      setApiError('Failed to record payment. Please try again.');
+    } catch (err) {
+      console.error(err);
+      notifyError('Failed to record payment. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -74,7 +77,6 @@ export function PaymentForm({ borrowerId, borrowerName, remainingDue, onSuccess,
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {apiError && <Alert type="error" message={apiError} />}
 
       <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
         <p className="text-xs text-amber-700 font-medium">Recording payment for</p>

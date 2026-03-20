@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { signUpWithEmail, signInWithGoogle } from '@/lib/firebase/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Alert } from '@/components/ui';
+import { notifySuccess, notifyError } from '@/lib/utils/notifications';
 
 export default function SignupPage() {
   const { user, loading } = useAuth();
@@ -16,7 +16,6 @@ export default function SignupPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
 
   useEffect(() => {
     if (!loading && user) router.replace('/dashboard');
@@ -40,19 +39,19 @@ export default function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    setApiError('');
     setIsLoading(true);
     try {
       await signUpWithEmail(form.email, form.password, form.name);
+      notifySuccess('Account created');
       router.push('/dashboard');
     } catch (err: any) {
       const code = err?.code || '';
       if (code.includes('email-already-in-use'))
-        setApiError('This email is already registered.');
+            notifyError('This email is already registered.');
       else if (code.includes('weak-password'))
-        setApiError('Password is too weak.');
+            notifyError('Password is too weak.');
       else
-        setApiError('Sign up failed. Please try again.');
+            notifyError('Sign up failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +62,7 @@ export default function SignupPage() {
       await signInWithGoogle();
       router.push('/dashboard');
     } catch {
-      setApiError('Google sign in failed.');
+      notifyError('Google sign in failed.');
     }
   }
 
@@ -79,7 +78,7 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 p-6">
-          {apiError && <Alert type="error" message={apiError} className="mb-4" />}
+        
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
