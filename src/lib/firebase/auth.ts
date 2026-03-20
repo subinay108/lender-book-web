@@ -2,7 +2,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signInWithRedirect,
   GoogleAuthProvider,
   signOut,
   updateProfile,
@@ -30,29 +29,8 @@ export async function signInWithEmail(
   return signInWithEmailAndPassword(auth, email, password);
 }
 
-export async function signInWithGoogle(): Promise<UserCredential | void> {
-  // Use redirect flow on mobile devices (popups are often blocked)
-  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) {
-    await signInWithRedirect(auth, googleProvider);
-    return;
-  }
-
-  try {
-    return await signInWithPopup(auth, googleProvider);
-  } catch (err: any) {
-    const code = err?.code || '';
-    // Fallback to redirect for environments where popups are blocked or unsupported
-    if (
-      code === 'auth/operation-not-supported-in-this-environment' ||
-      code === 'auth/popup-blocked' ||
-      code === 'auth/cancelled-popup-request'
-    ) {
-      await signInWithRedirect(auth, googleProvider);
-      return;
-    }
-    throw err;
-  }
+export async function signInWithGoogle(): Promise<UserCredential> {
+  return signInWithPopup(auth, googleProvider);
 }
 
 export async function logOut(): Promise<void> {
